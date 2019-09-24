@@ -9,7 +9,7 @@ policies.def.allowInvalidCertificates = true;
 policies.def.validatesDomainName = false;
 function enableSSLPinning(options) {
     if (!policies.secure) {
-        policies.secure = AFSecurityPolicy.policyWithPinningMode(2);
+        policies.secure = AFSecurityPolicy.policyWithPinningMode(1);
         var allowInvalidCertificates = (types_1.isDefined(options.allowInvalidCertificates)) ? options.allowInvalidCertificates : false;
         policies.secure.allowInvalidCertificates = allowInvalidCertificates;
         var validatesDomainName = (types_1.isDefined(options.validatesDomainName)) ? options.validatesDomainName : true;
@@ -63,7 +63,9 @@ function request(options) {
             console.log("initWithBaseUrl called...");
             manager.requestSerializer.allowsCellularAccess = true;
             manager.securityPolicy = (policies.secured == true) ? policies.secure : policies.def;
+            console.log("Set the security policy");
             manager.requestSerializer.timeoutInterval = 60;
+            console.log("Attempting to send request");
             manager.session.dataTaskWithRequestCompletionHandler(request_1, function (data, response, error) {
                 if (error) {
                     console.log("nativescript-https: (request) AF Send Error", error);

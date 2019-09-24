@@ -23,7 +23,7 @@ policies.def.validatesDomainName = false;
 export function enableSSLPinning(options: Https.HttpsSSLPinningOptions) {
     // console.log('options', options)
     if (!policies.secure) {
-        policies.secure = AFSecurityPolicy.policyWithPinningMode(AFSSLPinningMode.Certificate);
+        policies.secure = AFSecurityPolicy.policyWithPinningMode(AFSSLPinningMode.PublicKey);
         let allowInvalidCertificates = (isDefined(options.allowInvalidCertificates)) ? options.allowInvalidCertificates : false;
         policies.secure.allowInvalidCertificates = allowInvalidCertificates;
         let validatesDomainName = (isDefined(options.validatesDomainName)) ? options.validatesDomainName : true;
@@ -88,8 +88,10 @@ export function request(options: Https.HttpsRequestOptions): Promise<Https.Https
             console.log("initWithBaseUrl called...");
             manager.requestSerializer.allowsCellularAccess = true;
             manager.securityPolicy = (policies.secured == true) ? policies.secure : policies.def;
+            console.log("Set the security policy");
             manager.requestSerializer.timeoutInterval = 60;
 
+            console.log("Attempting to send request");
             manager.session.dataTaskWithRequestCompletionHandler(request, function (data: NSData, response: NSHTTPURLResponse, error: NSError) {
                 if (error) {
                     console.log("nativescript-https: (request) AF Send Error", error);
