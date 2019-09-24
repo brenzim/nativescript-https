@@ -23,7 +23,7 @@ policies.def.validatesDomainName = false;
 export function enableSSLPinning(options: Https.HttpsSSLPinningOptions) {
     // console.log('options', options)
     if (!policies.secure) {
-        policies.secure = AFSecurityPolicy.policyWithPinningMode(AFSSLPinningMode.PublicKey);
+        policies.secure = AFSecurityPolicy.policyWithPinningMode(AFSSLPinningMode.Certificate);
         let allowInvalidCertificates = (isDefined(options.allowInvalidCertificates)) ? options.allowInvalidCertificates : false;
         policies.secure.allowInvalidCertificates = allowInvalidCertificates;
         let validatesDomainName = (isDefined(options.validatesDomainName)) ? options.validatesDomainName : true;
