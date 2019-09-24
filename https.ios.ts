@@ -42,7 +42,7 @@ export function disableSSLPinning() {
 }
 
 export function request(options: Https.HttpsRequestOptions): Promise<Https.HttpsResponse> {
-    console.log("nativescript-https: (request) Request: ", options);
+
     return new Promise(function (resolve, reject) {
         try {
 
@@ -52,7 +52,6 @@ export function request(options: Https.HttpsRequestOptions): Promise<Https.Https
 
                 url = NSURLComponents.componentsWithString(options.url);
 
-                console.log(url);
                 let queryItems = NSMutableArray.new();
 
                 for (const paramsKey in params) {
@@ -86,10 +85,10 @@ export function request(options: Https.HttpsRequestOptions): Promise<Https.Https
 
             let manager = AFHTTPSessionManager.manager();
             manager.initWithBaseURL(url);
+            console.log("initWithBaseUrl called...");
             manager.requestSerializer.allowsCellularAccess = true;
             manager.securityPolicy = (policies.secured == true) ? policies.secure : policies.def;
             manager.requestSerializer.timeoutInterval = 60;
-            console.log("nativescript-https: (request) AF Send: ", request);
 
             manager.session.dataTaskWithRequestCompletionHandler(request, function (data: NSData, response: NSHTTPURLResponse, error: NSError) {
                 if (error) {

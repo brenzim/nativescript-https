@@ -27,14 +27,12 @@ function disableSSLPinning() {
 }
 exports.disableSSLPinning = disableSSLPinning;
 function request(options) {
-    console.log("nativescript-https: (request) Request: ", options);
     return new Promise(function (resolve, reject) {
         try {
             var url = void 0;
             var params = options.params;
             if (params) {
                 url = NSURLComponents.componentsWithString(options.url);
-                console.log(url);
                 var queryItems = NSMutableArray.new();
                 for (var paramsKey in params) {
                     var value = params[paramsKey];
@@ -62,10 +60,10 @@ function request(options) {
             }
             var manager = AFHTTPSessionManager.manager();
             manager.initWithBaseURL(url);
+            console.log("initWithBaseUrl called...");
             manager.requestSerializer.allowsCellularAccess = true;
             manager.securityPolicy = (policies.secured == true) ? policies.secure : policies.def;
             manager.requestSerializer.timeoutInterval = 60;
-            console.log("nativescript-https: (request) AF Send: ", request_1);
             manager.session.dataTaskWithRequestCompletionHandler(request_1, function (data, response, error) {
                 if (error) {
                     console.log("nativescript-https: (request) AF Send Error", error);
