@@ -9,7 +9,7 @@ policies.def.allowInvalidCertificates = true;
 policies.def.validatesDomainName = false;
 function enableSSLPinning(options) {
     if (!policies.secure) {
-        policies.secure = AFSecurityPolicy.policyWithPinningMode(2);
+        policies.secure = AFSecurityPolicy.policyWithPinningMode(1);
         var allowInvalidCertificates = (types_1.isDefined(options.allowInvalidCertificates)) ? options.allowInvalidCertificates : false;
         policies.secure.allowInvalidCertificates = allowInvalidCertificates;
         var validatesDomainName = (types_1.isDefined(options.validatesDomainName)) ? options.validatesDomainName : true;
@@ -58,8 +58,7 @@ function request(options) {
                 var jsonString = NSString.stringWithString(JSON.stringify(body));
                 request_1.HTTPBody = jsonString.dataUsingEncoding(NSUTF8StringEncoding);
             }
-            var manager = AFHTTPSessionManager.manager();
-            manager.initWithBaseURL(url);
+            var manager = AFHTTPSessionManager.alloc().initWithBaseURL(NSURL.URLWithString(options.url));
             console.log("initWithBaseUrl called...");
             manager.requestSerializer.allowsCellularAccess = true;
             manager.securityPolicy = (policies.secured == true) ? policies.secure : policies.def;

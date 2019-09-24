@@ -23,7 +23,7 @@ policies.def.validatesDomainName = false;
 export function enableSSLPinning(options: Https.HttpsSSLPinningOptions) {
     // console.log('options', options)
     if (!policies.secure) {
-        policies.secure = AFSecurityPolicy.policyWithPinningMode(AFSSLPinningMode.Certificate);
+        policies.secure = AFSecurityPolicy.policyWithPinningMode(AFSSLPinningMode.PublicKey);
         let allowInvalidCertificates = (isDefined(options.allowInvalidCertificates)) ? options.allowInvalidCertificates : false;
         policies.secure.allowInvalidCertificates = allowInvalidCertificates;
         let validatesDomainName = (isDefined(options.validatesDomainName)) ? options.validatesDomainName : true;
@@ -83,8 +83,7 @@ export function request(options: Https.HttpsRequestOptions): Promise<Https.Https
                 request.HTTPBody = jsonString.dataUsingEncoding(NSUTF8StringEncoding);
             }
 
-            let manager = AFHTTPSessionManager.manager();
-            manager.initWithBaseURL(url);
+            const manager = AFHTTPSessionManager.alloc().initWithBaseURL(NSURL.URLWithString(options.url));
             console.log("initWithBaseUrl called...");
             manager.requestSerializer.allowsCellularAccess = true;
             manager.securityPolicy = (policies.secured == true) ? policies.secure : policies.def;
