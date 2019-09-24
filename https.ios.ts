@@ -85,7 +85,7 @@ export function request(options: Https.HttpsRequestOptions): Promise<Https.Https
             }
 
             let manager = AFHTTPSessionManager.manager();
-
+            manager.initWithBaseURL(url);
             manager.requestSerializer.allowsCellularAccess = true;
             manager.securityPolicy = (policies.secured == true) ? policies.secure : policies.def;
             manager.requestSerializer.timeoutInterval = 60;

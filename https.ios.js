@@ -61,6 +61,7 @@ function request(options) {
                 request_1.HTTPBody = jsonString.dataUsingEncoding(NSUTF8StringEncoding);
             }
             var manager = AFHTTPSessionManager.manager();
+            manager.initWithBaseURL(url);
             manager.requestSerializer.allowsCellularAccess = true;
             manager.securityPolicy = (policies.secured == true) ? policies.secure : policies.def;
             manager.requestSerializer.timeoutInterval = 60;
