@@ -10,8 +10,10 @@ policies.def.validatesDomainName = false;
 function enableSSLPinning(options) {
     if (!policies.secure) {
         policies.secure = AFSecurityPolicy.policyWithPinningMode(1);
-        policies.secure.allowInvalidCertificates = (types_1.isDefined(options.allowInvalidCertificates)) ? options.allowInvalidCertificates : false;
-        policies.secure.validatesDomainName = (types_1.isDefined(options.validatesDomainName)) ? options.validatesDomainName : true;
+        var allowInvalidCertificates = (types_1.isDefined(options.allowInvalidCertificates)) ? options.allowInvalidCertificates : false;
+        policies.secure.allowInvalidCertificates = allowInvalidCertificates;
+        var validatesDomainName = (types_1.isDefined(options.validatesDomainName)) ? options.validatesDomainName : true;
+        policies.secure.validatesDomainName = validatesDomainName;
         var data = NSData.dataWithContentsOfFile(options.certificate);
         policies.secure.pinnedCertificates = NSSet.setWithObject(data);
     }
@@ -24,129 +26,72 @@ function disableSSLPinning() {
     console.log('nativescript-https > Disabled SSL pinning');
 }
 exports.disableSSLPinning = disableSSLPinning;
-console.info('nativescript-https > Disabled SSL pinning by default');
-function AFSuccess(resolve, task, data) {
-    console.log('AFSuccess');
-    var content;
-    if (data && data.class) {
-        if (data.enumerateKeysAndObjectsUsingBlock || data.class().name === 'NSArray') {
-            var serial = NSJSONSerialization.dataWithJSONObjectOptionsError(data, 1);
-            content = NSString.alloc().initWithDataEncoding(serial, NSUTF8StringEncoding).toString();
-        }
-        else if (data.class().name === 'NSData') {
-            content = NSString.alloc().initWithDataEncoding(data, NSASCIIStringEncoding).toString();
-        }
-        else {
-            content = data;
-        }
-        try {
-            content = JSON.parse(content);
-        }
-        catch (e) {
-        }
-    }
-    else {
-        content = data;
-    }
-    resolve({ task: task, content: content });
-}
-function AFFailure(resolve, reject, task, error) {
-    console.error('AFFailure');
-    console.log('error.description', error.description);
-    console.log('error.userInfo.description', error.userInfo.description);
-    console.log('error.localizedDescription', error.localizedDescription);
-    var data = error.userInfo.valueForKey(AFNetworkingOperationFailingURLResponseDataErrorKey);
-    var body = NSString.alloc().initWithDataEncoding(data, NSUTF8StringEncoding).toString();
-    try {
-        body = JSON.parse(body);
-    }
-    catch (e) {
-    }
-    var content = {
-        body: body,
-        description: error.description,
-        reason: error.localizedDescription
-    };
-    if (policies.secured === true) {
-        content.description = 'nativescript-https > Invalid SSL certificate! ' + content.description;
-    }
-    var reason = error.localizedDescription;
-    resolve({ task: task, content: content, reason: reason });
-}
-function request(opts) {
+function request(options) {
+    console.log("nativescript-https: (request) Request: ", options);
     return new Promise(function (resolve, reject) {
         try {
-            var manager_1 = AFHTTPSessionManager.alloc().initWithBaseURL(NSURL.URLWithString(opts.url));
-            if (opts.headers && opts.headers['Content-Type'] === 'application/json') {
-                manager_1.requestSerializer = AFJSONRequestSerializer.serializer();
-                manager_1.responseSerializer = AFJSONResponseSerializer.serializerWithReadingOptions(4);
-            }
-            else {
-                manager_1.requestSerializer = AFHTTPRequestSerializer.serializer();
-                manager_1.responseSerializer = AFHTTPResponseSerializer.serializer();
-            }
-            manager_1.requestSerializer.allowsCellularAccess = true;
-            manager_1.securityPolicy = (policies.secured === true) ? policies.secure : policies.def;
-            manager_1.requestSerializer.timeoutInterval = 60;
-            var heads_1 = opts.headers;
-            if (heads_1) {
-                Object.keys(heads_1).forEach(function (key) { return manager_1.requestSerializer.setValueForHTTPHeaderField(heads_1[key], key); });
-            }
-            var dict_1 = null;
-            if (opts.body) {
-                var cont_1 = opts.body;
-                if (types_1.isObject(cont_1)) {
-                    dict_1 = NSMutableDictionary.new();
-                    Object.keys(cont_1).forEach(function (key) { return dict_1.setValueForKey(cont_1[key], key); });
+            var url = void 0;
+            var params = options.params;
+            if (params) {
+                url = NSURLComponents.componentsWithString(options.url);
+                console.log(url);
+                var queryItems = NSMutableArray.new();
+                for (var paramsKey in params) {
+                    var value = params[paramsKey];
+                    var queryItem = NSURLQueryItem.queryItemWithNameValue(paramsKey, String(value));
+                    queryItems.addObject(queryItem);
                 }
-            }
-            var methods = {
-                'GET': 'GETParametersSuccessFailure',
-                'POST': 'POSTParametersSuccessFailure',
-                'PUT': 'PUTParametersSuccessFailure',
-                'DELETE': 'DELETEParametersSuccessFailure',
-                'PATCH': 'PATCHParametersSuccessFailure',
-                'HEAD': 'HEADParametersSuccessFailure',
-            };
-            console.log("Attempting to send request");
-            console.log("Sending data as " + JSON.stringify(dict_1));
-            console.log("I am here.....");
-            if (dict_1 == null) {
-                console.log("Dict is null");
+                url.queryItems = NSArray.arrayWithArray(queryItems);
+                url = url.URL;
             }
             else {
-                console.log("Dict is not null");
+                url = NSURL.URLWithString(options.url);
             }
-            console.log("Attempting to check the dict count.");
-            var count = dict_1.count;
-            console.log("The count for dict is");
-            console.log("Count " + count);
-            console.log("Setting dict to null");
-            dict_1 = null;
-            manager_1[methods[opts.method]](opts.url, dict_1, function success(task, data) {
-                AFSuccess(resolve, task, data);
-            }, function failure(task, error) {
-                AFFailure(resolve, reject, task, error);
-            });
+            var request_1 = NSMutableURLRequest.requestWithURL(url);
+            request_1.HTTPMethod = options.method;
+            var headers_1 = options.headers;
+            if (headers_1) {
+                Object.keys(headers_1).forEach(function (key) {
+                    request_1.setValueForHTTPHeaderField(headers_1[key], key);
+                });
+            }
+            if (options.body) {
+                var body = options && options.body ? options.body : null;
+                var jsonString = NSString.stringWithString(JSON.stringify(body));
+                request_1.HTTPBody = jsonString.dataUsingEncoding(NSUTF8StringEncoding);
+            }
+            var manager = AFHTTPSessionManager.alloc().initWithBaseURL(NSURL.URLWithString(options.url));
+            manager.requestSerializer.allowsCellularAccess = true;
+            manager.securityPolicy = (policies.secured == true) ? policies.secure : policies.def;
+            manager.requestSerializer.timeoutInterval = 60;
+            console.log("nativescript-https: (request) AF Send: ", request_1);
+            manager.session.dataTaskWithRequestCompletionHandler(request_1, function (data, response, error) {
+                if (error) {
+                    console.log("nativescript-https: (request) AF Send Error", error);
+                    reject(new Error(error.localizedDescription));
+                }
+                else {
+                    var content = NSString.alloc().initWithDataEncoding(data, NSUTF8StringEncoding).toString();
+                    console.log("nativescript-https: (request) AF Send Response", content);
+                    console.log("data", data.length);
+                    console.log("data", data.description);
+                    try {
+                        content = JSON.parse(content);
+                    }
+                    catch (e) {
+                        console.log("nativescript-https: Response JSON Parse Error", e, e.stack, content);
+                    }
+                    resolve({
+                        content: content,
+                        statusCode: response.statusCode
+                    });
+                }
+            }).resume();
         }
         catch (error) {
+            console.log("nativescript-https: (request) AF Error", error, error.stack);
             reject(error);
         }
-    }).then(function (AFResponse) {
-        var sendi = {
-            content: AFResponse.content,
-            headers: {},
-        };
-        var response = AFResponse.task.response;
-        if (!types_1.isNullOrUndefined(response)) {
-            sendi.statusCode = response.statusCode;
-            var dict = response.allHeaderFields;
-            dict.enumerateKeysAndObjectsUsingBlock(function (k, v) { return sendi.headers[k] = v; });
-        }
-        if (AFResponse.reason) {
-            sendi.reason = AFResponse.reason;
-        }
-        return Promise.resolve(sendi);
     });
 }
 exports.request = request;
