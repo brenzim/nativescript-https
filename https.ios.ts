@@ -21,13 +21,12 @@ policies.def.validatesDomainName = false;
 export function enableSSLPinning(options: Https.HttpsSSLPinningOptions) {
     // console.log('options', options)
     if (!policies.secure) {
-        policies.secure = AFSecurityPolicy.policyWithPinningMode(AFSSLPinningMode.Certificate);
+        policies.secure = AFSecurityPolicy.policyWithPinningMode(AFSSLPinningMode.PublicKey);
         let allowInvalidCertificates = (isDefined(options.allowInvalidCertificates)) ? options.allowInvalidCertificates : false;
         policies.secure.allowInvalidCertificates = allowInvalidCertificates;
         let validatesDomainName = (isDefined(options.validatesDomainName)) ? options.validatesDomainName : true;
         policies.secure.validatesDomainName = validatesDomainName;
         let data = NSData.dataWithContentsOfFile(options.certificate);
-        console.log("CertFile", data);
         policies.secure.pinnedCertificates = NSSet.setWithObject(data)
     }
     policies.secured = true;
