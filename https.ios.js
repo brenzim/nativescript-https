@@ -121,12 +121,8 @@ function request(opts) {
             var count = dict_1.count;
             console.log("The count for dict is");
             console.log("Count " + count);
-            console.log("Checking keys");
-            var keys = dict_1.allKeys;
-            for (var key in keys) {
-                console.log("Checking for key " + key);
-                console.log("" + dict_1[key]);
-            }
+            console.log("Setting dict to null");
+            dict_1 = null;
             manager_1[methods[opts.method]](opts.url, dict_1, function success(task, data) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {

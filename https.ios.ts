@@ -187,13 +187,6 @@ export function request(opts: Https.HttpsRequestOptions): Promise<Https.HttpsRes
             let count = dict.count;
             console.log("The count for dict is");
             console.log("Count " + count);
-
-            console.log("Checking keys");
-            let keys = dict.allKeys;
-            for( var key in keys){
-                console.log("Checking for key " + key);
-                console.log("" + dict[key]);
-            }
             console.log("Setting dict to null");
             dict = null;
             manager[methods[opts.method]](opts.url, dict, function success(task: NSURLSessionDataTask, data: any) {
