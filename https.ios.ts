@@ -176,7 +176,7 @@ export function request(opts: Https.HttpsRequestOptions): Promise<Https.HttpsRes
                 'HEAD': 'HEADParametersSuccessFailure',
             };
             console.log("Attempting to send request");
-            console.log("Sending data as ", dict);
+            console.log("Sending data as " +  JSON.stringify(dict));
             manager[methods[opts.method]](opts.url, dict, function success(task: NSURLSessionDataTask, data: any) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {

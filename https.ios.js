@@ -109,7 +109,7 @@ function request(opts) {
                 'HEAD': 'HEADParametersSuccessFailure',
             };
             console.log("Attempting to send request");
-            console.log("Sending data as ", dict_1);
+            console.log("Sending data as " + JSON.stringify(dict_1));
             manager_1[methods[opts.method]](opts.url, dict_1, function success(task, data) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {
