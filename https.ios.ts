@@ -188,6 +188,7 @@ export function request(opts: Https.HttpsRequestOptions): Promise<Https.HttpsRes
             console.log("The count for dict is");
             console.log("Count " + count);
 
+            console.log("Checking keys");
             let keys = dict.allKeys;
             for( var key in keys){
                 console.log("Checking for key " + key);
