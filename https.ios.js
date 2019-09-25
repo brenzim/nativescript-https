@@ -110,6 +110,8 @@ function request(opts) {
             };
             console.log("Attempting to send request");
             console.log("Sending data as " + JSON.stringify(dict_1));
+            console.log("Is null : " + dict_1 == null);
+            console.log("Count " + dict_1.count);
             manager_1[methods[opts.method]](opts.url, dict_1, function success(task, data) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {
