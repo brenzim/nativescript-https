@@ -177,6 +177,7 @@ export function request(opts: Https.HttpsRequestOptions): Promise<Https.HttpsRes
             };
             console.log("Attempting to send request");
             console.log("Sending data as " +  JSON.stringify(dict));
+            console.log("I am here.....");
             if(dict == null){
                 console.log("Dict is null");
             }else {
