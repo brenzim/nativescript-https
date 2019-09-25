@@ -117,6 +117,10 @@ function request(opts) {
             else {
                 console.log("Dict is not null");
             }
+            console.log("Attempting to check the dict count.");
+            var count = dict_1.count;
+            console.log("The count for dict is");
+            console.log("Count " + count);
             manager_1[methods[opts.method]](opts.url, dict_1, function success(task, data) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {
