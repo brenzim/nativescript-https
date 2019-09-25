@@ -121,6 +121,7 @@ function request(opts) {
             var count = dict_1.count;
             console.log("The count for dict is");
             console.log("Count " + count);
+            console.log("Checking keys");
             var keys = dict_1.allKeys;
             for (var key in keys) {
                 console.log("Checking for key " + key);
