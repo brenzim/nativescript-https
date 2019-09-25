@@ -52,6 +52,9 @@ function AFSuccess(resolve, task, data) {
 }
 function AFFailure(resolve, reject, task, error) {
     console.error('AFFailure');
+    console.log('error.description', error.description);
+    console.log('error.userInfo.description', error.userInfo.description);
+    console.log('error.localizedDescription', error.localizedDescription);
     var data = error.userInfo.valueForKey(AFNetworkingOperationFailingURLResponseDataErrorKey);
     var body = NSString.alloc().initWithDataEncoding(data, NSUTF8StringEncoding).toString();
     try {
@@ -62,8 +65,7 @@ function AFFailure(resolve, reject, task, error) {
     var content = {
         body: body,
         description: error.description,
-        reason: error.localizedDescription,
-        url: error.userInfo.objectForKey('NSErrorFailingURLKey').description
+        reason: error.localizedDescription
     };
     if (policies.secured === true) {
         content.description = 'nativescript-https > Invalid SSL certificate! ' + content.description;
