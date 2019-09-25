@@ -183,6 +183,9 @@ export function request(opts: Https.HttpsRequestOptions): Promise<Https.HttpsRes
             }else {
                 console.log("Dict is not null");
             }
+            let count = dict.count;
+            console.log("The count for dict is");
+            console.log("Count " + count);
             manager[methods[opts.method]](opts.url, dict, function success(task: NSURLSessionDataTask, data: any) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {
