@@ -15,6 +15,7 @@ function enableSSLPinning(options) {
         var validatesDomainName = (types_1.isDefined(options.validatesDomainName)) ? options.validatesDomainName : true;
         policies.secure.validatesDomainName = validatesDomainName;
         var data = NSData.dataWithContentsOfFile(options.certificate);
+        console.log("CertFile", data);
         policies.secure.pinnedCertificates = NSSet.setWithObject(data);
     }
     policies.secured = true;
