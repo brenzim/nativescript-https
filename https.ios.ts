@@ -175,6 +175,7 @@ export function request(opts: Https.HttpsRequestOptions): Promise<Https.HttpsRes
                 'PATCH': 'PATCHParametersSuccessFailure',
                 'HEAD': 'HEADParametersSuccessFailure',
             };
+            console.log("Attempting to send data : ", JSON.stringify(dict));
             manager[methods[opts.method]](opts.url, dict, function success(task: NSURLSessionDataTask, data: any) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {

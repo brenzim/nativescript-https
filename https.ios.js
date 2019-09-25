@@ -104,6 +104,7 @@ function request(opts) {
                 'PATCH': 'PATCHParametersSuccessFailure',
                 'HEAD': 'HEADParametersSuccessFailure',
             };
+            console.log("Attempting to send data : ", JSON.stringify(dict_1));
             manager_1[methods[opts.method]](opts.url, dict_1, function success(task, data) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {
