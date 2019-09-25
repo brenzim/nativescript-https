@@ -175,10 +175,8 @@ export function request(opts: Https.HttpsRequestOptions): Promise<Https.HttpsRes
                 'PATCH': 'PATCHParametersSuccessFailure',
                 'HEAD': 'HEADParametersSuccessFailure',
             };
-            if(dict != null && dict.count <= 0){
-                console.log("Resetting dict to null");
-                dict = null;
-            }
+            console.log("Attempting to send request");
+            console.log("Sending data as ", dict);
             manager[methods[opts.method]](opts.url, dict, function success(task: NSURLSessionDataTask, data: any) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {

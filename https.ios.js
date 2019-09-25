@@ -108,10 +108,8 @@ function request(opts) {
                 'PATCH': 'PATCHParametersSuccessFailure',
                 'HEAD': 'HEADParametersSuccessFailure',
             };
-            if (dict_1 != null && dict_1.count <= 0) {
-                console.log("Resetting dict to null");
-                dict_1 = null;
-            }
+            console.log("Attempting to send request");
+            console.log("Sending data as ", dict_1);
             manager_1[methods[opts.method]](opts.url, dict_1, function success(task, data) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {
