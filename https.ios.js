@@ -26,6 +26,7 @@ function disableSSLPinning() {
 exports.disableSSLPinning = disableSSLPinning;
 console.info('nativescript-https > Disabled SSL pinning by default');
 function AFSuccess(resolve, task, data) {
+    console.log('AFSuccess');
     var content;
     if (data && data.class) {
         if (data.enumerateKeysAndObjectsUsingBlock || data.class().name === 'NSArray') {
@@ -50,6 +51,7 @@ function AFSuccess(resolve, task, data) {
     resolve({ task: task, content: content });
 }
 function AFFailure(resolve, reject, task, error) {
+    console.error('AFFailure');
     var data = error.userInfo.valueForKey(AFNetworkingOperationFailingURLResponseDataErrorKey);
     var body = NSString.alloc().initWithDataEncoding(data, NSUTF8StringEncoding).toString();
     try {
@@ -104,7 +106,7 @@ function request(opts) {
                 'PATCH': 'PATCHParametersSuccessFailure',
                 'HEAD': 'HEADParametersSuccessFailure',
             };
-            console.log("Attempting to send data : ", JSON.stringify(dict_1));
+            console.log("Sending request to " + opts.url);
             manager_1[methods[opts.method]](opts.url, dict_1, function success(task, data) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {
