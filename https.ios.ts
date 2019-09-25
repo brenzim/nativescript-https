@@ -177,6 +177,8 @@ export function request(opts: Https.HttpsRequestOptions): Promise<Https.HttpsRes
             };
             console.log("Attempting to send request");
             console.log("Sending data as " +  JSON.stringify(dict));
+            console.log("Is null : " + dict == null);
+            console.log("Count " + dict.count);
             manager[methods[opts.method]](opts.url, dict, function success(task: NSURLSessionDataTask, data: any) {
                 AFSuccess(resolve, task, data);
             }, function failure(task, error) {
