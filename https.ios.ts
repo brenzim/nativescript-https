@@ -183,6 +183,7 @@ export function request(opts: Https.HttpsRequestOptions): Promise<Https.HttpsRes
             }else {
                 console.log("Dict is not null");
             }
+            console.log("Attempting to check the dict count.");
             let count = dict.count;
             console.log("The count for dict is");
             console.log("Count " + count);
