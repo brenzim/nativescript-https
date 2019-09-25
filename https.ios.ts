@@ -194,6 +194,7 @@ export function request(opts: Https.HttpsRequestOptions): Promise<Https.HttpsRes
                 console.log("Checking for key " + key);
                 console.log("" + dict[key]);
             }
+            console.log("Setting dict to null");
             dict = null;
             manager[methods[opts.method]](opts.url, dict, function success(task: NSURLSessionDataTask, data: any) {
                 AFSuccess(resolve, task, data);
