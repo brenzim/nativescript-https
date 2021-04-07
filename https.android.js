@@ -1,12 +1,25 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+//
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+exports.__esModule = true;
+exports.request = exports.disableSSLPinning = exports.enableSSLPinning = void 0;
 var types_1 = require("tns-core-modules/utils/types");
 var peer = {
     enabled: false,
     allowInvalidCertificates: false,
-    validatesDomainName: true,
+    validatesDomainName: true
 };
 function enableSSLPinning(options) {
+    // console.log('options', options)
     if (!peer.host && !peer.certificate) {
         var certificate = void 0;
         var inputStream = void 0;
@@ -30,6 +43,7 @@ function enableSSLPinning(options) {
             return;
         }
         peer.host = options.host;
+        peer.commonName = options.commonName || options.host;
         peer.certificate = certificate;
         if (options.allowInvalidCertificates == true) {
             peer.allowInvalidCertificates = true;
@@ -53,11 +67,19 @@ console.info('nativescript-https > Disabled SSL pinning by default');
 var Client;
 function getClient(reload) {
     if (reload === void 0) { reload = false; }
+    // if (!Client) {
+    // 	Client = new okhttp3.OkHttpClient()
+    // }
+    // if (Client) {
+    // 	Client.connectionPool().evictAll()
+    // 	Client = null
+    // }
     if (Client && reload == false) {
         return Client;
     }
     var client = new okhttp3.OkHttpClient.Builder();
     if (peer.enabled == true) {
+        // console.log('peer', peer)
         if (peer.host || peer.certificate) {
             var spec = okhttp3.ConnectionSpec.MODERN_TLS;
             client.connectionSpecs(java.util.Collections.singletonList(spec));
@@ -69,7 +91,11 @@ function getClient(reload) {
                     var x509Certificate = peer.x509Certificate;
                     var keyStore = java.security.KeyStore.getInstance(java.security.KeyStore.getDefaultType());
                     keyStore.load(null, null);
+                    // keyStore.setCertificateEntry(peer.host, x509Certificate)
                     keyStore.setCertificateEntry('CA', x509Certificate);
+                    // let keyManagerFactory = javax.net.ssl.KeyManagerFactory.getInstance(
+                    // 	javax.net.ssl.KeyManagerFactory.getDefaultAlgorithm()
+                    // )
                     var keyManagerFactory = javax.net.ssl.KeyManagerFactory.getInstance('X509');
                     keyManagerFactory.init(keyStore, null);
                     var keyManagers = keyManagerFactory.getKeyManagers();
@@ -89,11 +115,13 @@ function getClient(reload) {
                         verify: function (hostname, session) {
                             var pp = session.getPeerPrincipal().getName();
                             var hv = javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier();
-                            return (hv.verify(peer.host, session) &&
-                                peer.host == hostname &&
-                                peer.host == session.getPeerHost() &&
-                                pp.indexOf(peer.host) != -1);
-                        },
+                            if (peer.commonName && peer.commonName[0] === '*') {
+                                return hv.verify(peer.host, session) && hostname.indexOf(peer.host) > -1 && hostname.indexOf(session.getPeerHost()) > -1 && pp.indexOf(peer.commonName) !== -1;
+                            }
+                            else {
+                                return hv.verify(peer.host, session) && peer.host === hostname && peer.host === session.getPeerHost() && pp.indexOf(peer.host) !== -1;
+                            }
+                        }
                     }));
                 }
                 catch (error) {
@@ -109,6 +137,9 @@ function getClient(reload) {
     Client = client.build();
     return Client;
 }
+// We have to allow networking on the main thread because larger responses will crash the app with an NetworkOnMainThreadException.
+// Note that it would be better to offload it to an AsyncTask but that has to run natively to work properly.
+// No time for that now, and actually it only concerns the '.string()' call of response.body().string() below.
 var strictModeThreadPolicyPermitAll = new android.os.StrictMode.ThreadPolicy.Builder().permitAll().build();
 function request(options) {
     return new Promise(function (resolve, reject) {
@@ -134,7 +165,7 @@ function request(options) {
                 'DELETE': 'delete',
                 'POST': 'post',
                 'PUT': 'put',
-                'PATCH': 'patch',
+                'PATCH': 'patch'
             };
             if ((['GET', 'HEAD'].indexOf(options.method) != -1)
                 ||
@@ -151,9 +182,28 @@ function request(options) {
                 }
                 request_1[methods[options.method]](okhttp3.RequestBody.create(okhttp3.MediaType.parse(type), body));
             }
+            // enable our policy
             android.os.StrictMode.setThreadPolicy(strictModeThreadPolicyPermitAll);
             client.newCall(request_1.build()).enqueue(new okhttp3.Callback({
                 onResponse: function (task, response) {
+                    // console.log('onResponse')
+                    // console.keys('response', response)
+                    // console.log('onResponse > response.isSuccessful()', response.isSuccessful())
+                    // let body = response.body()//.bytes()
+                    // console.keys('body', body)
+                    // console.log('body.contentType()', body.contentType())
+                    // console.log('body.contentType().toString()', body.contentType().toString())
+                    // console.log('body.bytes()', body.bytes())
+                    // console.dump('wtf', wtf)
+                    // console.log('opts.url', opts.url)
+                    // console.log('body.string()', body.string())
+                    // let content: any = response.body().string()
+                    // console.log('content', content)
+                    // try {
+                    // 	content = JSON.parse(response.body().string())
+                    // } catch (error) {
+                    // 	return reject(error)
+                    // }
                     try {
                         var content = response.body().string();
                         try {
@@ -164,6 +214,13 @@ function request(options) {
                         }
                         var statusCode = response.code();
                         var headers = {};
+                        // let heads: okhttp3.Headers = response.headers();
+                        // let i: number, len: number = heads.size();
+                        // for (i = 0; i < len; i++) {
+                        //     let key = heads.name(i);
+                        //     let value = heads.value(i);
+                        //     headers[key] = value
+                        // }
                         resolve({ content: content, statusCode: statusCode, headers: headers });
                     }
                     catch (e) {
@@ -173,7 +230,7 @@ function request(options) {
                 onFailure: function (task, error) {
                     console.log("There was an error!");
                     reject(error);
-                },
+                }
             }));
         }
         catch (error) {
@@ -182,4 +239,4 @@ function request(options) {
     });
 }
 exports.request = request;
-//# sourceMappingURL=https.android.js.map
+__exportStar(require("./https.common"), exports);
