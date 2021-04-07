@@ -10,6 +10,7 @@ interface Ipeer {
     allowInvalidCertificates: boolean
     validatesDomainName: boolean
     host?: string
+    commonName?: string;
     certificate?: string
     x509Certificate?: java.security.cert.Certificate
 }
@@ -43,6 +44,7 @@ export function enableSSLPinning(options: Https.HttpsSSLPinningOptions) {
             return
         }
         peer.host = options.host;
+        peer.commonName = options.commonName || options.host;
         peer.certificate = certificate;
         if (options.allowInvalidCertificates == true) {
             peer.allowInvalidCertificates = true
@@ -127,12 +129,11 @@ function getClient(reload: boolean = false): okhttp3.OkHttpClient {
                         verify: function (hostname: string, session: any): boolean {
                             let pp = session.getPeerPrincipal().getName();
                             let hv = javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier();
-                            return (
-                                hv.verify(peer.host, session) &&
-                                peer.host == hostname &&
-                                peer.host == session.getPeerHost() &&
-                                pp.indexOf(peer.host) != -1
-                            )
+                            if (peer.commonName && peer.commonName[0] === '*') {
+                                return hv.verify(peer.host, session) && hostname.indexOf(peer.host) > -1 && hostname.indexOf(session.getPeerHost()) > -1 && pp.indexOf(peer.commonName) !== -1;
+                            } else {
+                                return hv.verify(peer.host, session) && peer.host === hostname && peer.host === session.getPeerHost() && pp.indexOf(peer.host) !== -1;
+                            }
                         },
                     }))
                 } catch (error) {
