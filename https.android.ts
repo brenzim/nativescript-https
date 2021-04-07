@@ -130,8 +130,10 @@ function getClient(reload: boolean = false): okhttp3.OkHttpClient {
                             let pp = session.getPeerPrincipal().getName();
                             let hv = javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier();
                             if (peer.commonName && peer.commonName[0] === '*') {
+                                console.info('validate domain name with commonName');
                                 return hv.verify(peer.host, session) && hostname.indexOf(peer.host) > -1 && hostname.indexOf(session.getPeerHost()) > -1 && pp.indexOf(peer.commonName) !== -1;
                             } else {
+                                console.info('validate domain name without commonName');
                                 return hv.verify(peer.host, session) && peer.host === hostname && peer.host === session.getPeerHost() && pp.indexOf(peer.host) !== -1;
                             }
                         },

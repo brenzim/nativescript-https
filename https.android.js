@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.request = exports.disableSSLPinning = exports.enableSSLPinning = void 0;
 var types_1 = require("tns-core-modules/utils/types");
 var peer = {
     enabled: false,
@@ -92,9 +91,11 @@ function getClient(reload) {
                             var pp = session.getPeerPrincipal().getName();
                             var hv = javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier();
                             if (peer.commonName && peer.commonName[0] === '*') {
+                                console.info('validate domain name with commonName');
                                 return hv.verify(peer.host, session) && hostname.indexOf(peer.host) > -1 && hostname.indexOf(session.getPeerHost()) > -1 && pp.indexOf(peer.commonName) !== -1;
                             }
                             else {
+                                console.info('validate domain name without commonName');
                                 return hv.verify(peer.host, session) && peer.host === hostname && peer.host === session.getPeerHost() && pp.indexOf(peer.host) !== -1;
                             }
                         },
@@ -186,5 +187,4 @@ function request(options) {
     });
 }
 exports.request = request;
-__exportStar(require("./https.common"), exports);
 //# sourceMappingURL=https.android.js.map
